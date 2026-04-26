@@ -7,14 +7,12 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const configService = app.get(ConfigService);
-  const port = configService.get<number>('port') || 3000;
-
-  // Global validation
+  const port = configService.get<number>('app.port') ?? 3000;
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
-      transform: true, // Type conversion avtomatik
+      transform: true,
     }),
   );
 
@@ -24,7 +22,6 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Global prefix
   app.setGlobalPrefix('v1');
 
   await app.listen(port);
