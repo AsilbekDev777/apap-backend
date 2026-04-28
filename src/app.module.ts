@@ -11,6 +11,7 @@ import redisConfig from './config/redis.config';
 import { SharedModule } from './shared/shared.module';
 import { AttendanceModule } from './modules/attendance/attendance.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     SharedModule,
     AttendanceModule,
     NotificationsModule,
+    AdminModule,
   ],
 })
 export class AppModule {}
