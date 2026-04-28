@@ -1,11 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AuthModule } from './modules/auth/auth.module';
 import { StudentsModule } from './modules/students/students.module';
+import { GradesModule } from './modules/grades/grades.module';
 import appConfig from './config/app.config';
 import databaseConfig from './config/database.config';
 import redisConfig from './config/redis.config';
+import { SharedModule } from './shared/shared.module';
+import { AttendanceModule } from './modules/attendance/attendance.module';
 
 @Module({
   imports: [
@@ -30,9 +34,12 @@ import redisConfig from './config/redis.config';
         logging: true,
       }),
     }),
-
+    EventEmitterModule.forRoot(),
     AuthModule,
     StudentsModule,
+    GradesModule,
+    SharedModule,
+    AttendanceModule,
   ],
 })
 export class AppModule {}
