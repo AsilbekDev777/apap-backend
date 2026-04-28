@@ -10,6 +10,7 @@ import databaseConfig from './config/database.config';
 import redisConfig from './config/redis.config';
 import { SharedModule } from './shared/shared.module';
 import { AttendanceModule } from './modules/attendance/attendance.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { AttendanceModule } from './modules/attendance/attendance.module';
     GradesModule,
     SharedModule,
     AttendanceModule,
+    NotificationsModule,
   ],
 })
 export class AppModule {}
