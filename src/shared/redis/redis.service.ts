@@ -9,10 +9,19 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   constructor(private configService: ConfigService) {}
 
   onModuleInit() {
-    this.client = new Redis({
-      host: this.configService.get<string>('redis.host') ?? 'localhost',
-      port: this.configService.get<number>('redis.port') ?? 6379,
-    });
+    const url = this.configService.get<string>('redis.url');
+
+    if (url) {
+      // Upstash — TLS bilan
+      this.client = new Redis(url, {
+        tls: { rejectUnauthorized: false },
+      });
+    } else {
+      this.client = new Redis({
+        host: this.configService.get<string>('redis.host') ?? 'localhost',
+        port: this.configService.get<number>('redis.port') ?? 6379,
+      });
+    }
   }
 
   async onModuleDestroy() {
