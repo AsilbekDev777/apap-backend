@@ -1,4 +1,4 @@
-import { Entity, Column, OneToMany, OneToOne } from 'typeorm';
+import { Entity, Column } from 'typeorm';
 import { BaseEntity } from './base.entity';
 
 export enum UserRole {
