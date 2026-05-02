@@ -9,6 +9,7 @@ import {
   UseGuards,
   ParseUUIDPipe,
 } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { GradesService } from './grades.service';
 import { CreateGradeDto } from './dto/create-grade.dto';
 import { UpdateGradeDto } from './dto/update-grade.dto';
@@ -19,24 +20,29 @@ import { Roles } from '../../shared/decorators/roles.decorator';
 import { CurrentUser } from '../../shared/decorators/current-user.decorator';
 import { UserRole, User } from '../../database/entities/user.entity';
 
+@ApiTags('Grades')
+@ApiBearerAuth('access-token')
 @Controller('grades')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class GradesController {
   constructor(private readonly gradesService: GradesService) {}
 
   @Get()
+  @ApiOperation({ summary: "Baholar ro'yxati" })
   @Roles(UserRole.ADMIN, UserRole.TEACHER, UserRole.STUDENT, UserRole.PARENT)
   findAll(@Query() query: QueryGradeDto, @CurrentUser() user: User) {
     return this.gradesService.findAll(query, user);
   }
 
   @Post()
+  @ApiOperation({ summary: 'Baho kiritish' })
   @Roles(UserRole.ADMIN, UserRole.TEACHER)
   create(@Body() dto: CreateGradeDto, @CurrentUser() user: User) {
     return this.gradesService.create(dto, user);
   }
 
   @Put(':id')
+  @ApiOperation({ summary: 'Bahoni yangilash' })
   @Roles(UserRole.ADMIN, UserRole.TEACHER)
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -47,6 +53,7 @@ export class GradesController {
   }
 
   @Get('gpa/:studentId/:semesterId')
+  @ApiOperation({ summary: "GPA ko'rish (Redis cached)" })
   @Roles(UserRole.ADMIN, UserRole.TEACHER, UserRole.STUDENT, UserRole.PARENT)
   getGpa(
     @Param('studentId', ParseUUIDPipe) studentId: string,
