@@ -11,6 +11,7 @@ import { ForgotPasswordDto, ResetPasswordDto } from './dto/reset-password.dto';
 import { JwtAuthGuard } from '../../shared/guards/jwt-auth.guard';
 import { CurrentUser } from '../../shared/decorators/current-user.decorator';
 import { User } from '../../database/entities/user.entity';
+import { Throttle } from '@nestjs/throttler';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -18,6 +19,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
+  @Throttle({ short: { ttl: 60000, limit: 5 } })
   @ApiOperation({ summary: 'Login' })
   @ApiResponse({ status: 200, description: 'Access + Refresh token qaytaradi' })
   @ApiResponse({ status: 401, description: "Email yoki parol noto'g'ri" })

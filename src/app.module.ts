@@ -12,6 +12,8 @@ import { SharedModule } from './shared/shared.module';
 import { AttendanceModule } from './modules/attendance/attendance.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -20,6 +22,18 @@ import { AdminModule } from './modules/admin/admin.module';
       load: [appConfig, databaseConfig, redisConfig],
       envFilePath: '.env',
     }),
+    ThrottlerModule.forRoot([
+      {
+        name: 'short',
+        ttl: 1000, // 1 sekund
+        limit: 10, // max 10 request
+      },
+      {
+        name: 'long',
+        ttl: 60000, // 1 daqiqa
+        limit: 100, // max 100 request
+      },
+    ]),
 
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
@@ -49,6 +63,12 @@ import { AdminModule } from './modules/admin/admin.module';
     AttendanceModule,
     NotificationsModule,
     AdminModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule {}
