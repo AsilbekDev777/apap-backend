@@ -14,6 +14,8 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { AdminModule } from './modules/admin/admin.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { BullModule } from '@nestjs/bull';
+import { ReportsModule } from './modules/reports/reports.module';
 
 @Module({
   imports: [
@@ -25,15 +27,24 @@ import { APP_GUARD } from '@nestjs/core';
     ThrottlerModule.forRoot([
       {
         name: 'short',
-        ttl: 1000, // 1 sekund
-        limit: 10, // max 10 request
+        ttl: 1000,
+        limit: 10,
       },
       {
         name: 'long',
-        ttl: 60000, // 1 daqiqa
-        limit: 100, // max 100 request
+        ttl: 60000,
+        limit: 100,
       },
     ]),
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        redis: {
+          host: config.get<string>('redis.host') ?? 'localhost',
+          port: config.get<number>('redis.port') ?? 6379,
+        },
+      }),
+    }),
 
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
@@ -63,6 +74,7 @@ import { APP_GUARD } from '@nestjs/core';
     AttendanceModule,
     NotificationsModule,
     AdminModule,
+    ReportsModule,
   ],
   providers: [
     {
