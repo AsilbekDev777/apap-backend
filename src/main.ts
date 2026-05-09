@@ -19,7 +19,11 @@ async function bootstrap() {
 
   // CORS
   app.enableCors({
-    origin: ['http://localhost:8081', 'http://localhost:3001'],
+    origin: [
+      'http://localhost:8081',
+      'http://localhost:3001',
+      'https://apap-frontend.vercel.app',
+    ],
     credentials: true,
   });
 
