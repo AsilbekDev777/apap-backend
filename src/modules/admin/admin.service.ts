@@ -21,6 +21,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { AssignTeacherDto } from './dto/assign-teacher.dto';
 import { QueryAuditDto } from './dto/query-audit.dto';
 import { UserRole } from '../../database/entities/user.entity';
+import { GradeType } from '../../database/entities/grade-type.entity';
 
 @Injectable()
 export class AdminService {
@@ -45,6 +46,9 @@ export class AdminService {
 
     @InjectRepository(AuditLog)
     private auditRepo: Repository<AuditLog>,
+
+    @InjectRepository(GradeType)
+    private gradeTypeRepo: Repository<GradeType>,
   ) {}
 
   // ─── Fakultet ─────────────────────────────────────────────────────────────
@@ -245,5 +249,9 @@ export class AdminService {
       ]);
 
     return { totalStudents, totalTeachers, totalCourses, activeSemester };
+  }
+
+  async getGradeTypes() {
+    return this.gradeTypeRepo.find({ order: { weightPercent: 'ASC' } });
   }
 }
