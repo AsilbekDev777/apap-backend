@@ -134,4 +134,10 @@ export class AdminController {
   getAuditLogs(@Query() query: QueryAuditDto) {
     return this.adminService.getAuditLogs(query);
   }
+
+  @Get('grade-types')
+  @ApiOperation({ summary: "Baho turlari ro'yxati" })
+  getGradeTypes() {
+    return this.adminService.getGradeTypes();
+  }
 }
