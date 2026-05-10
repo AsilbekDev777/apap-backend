@@ -8,6 +8,7 @@ import {
   Query,
   UseGuards,
   ParseUUIDPipe,
+  Delete,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -26,7 +27,8 @@ import { QueryAuditDto } from './dto/query-audit.dto';
 import { JwtAuthGuard } from '../../shared/guards/jwt-auth.guard';
 import { RolesGuard } from '../../shared/guards/roles.guard';
 import { Roles } from '../../shared/decorators/roles.decorator';
-import { UserRole } from '../../database/entities/user.entity';
+import { User, UserRole } from '../../database/entities/user.entity';
+import { CurrentUser } from '../../shared/decorators/current-user.decorator';
 
 @ApiTags('Admin')
 @ApiBearerAuth('access-token')
@@ -139,5 +141,47 @@ export class AdminController {
   @ApiOperation({ summary: "Baho turlari ro'yxati" })
   getGradeTypes() {
     return this.adminService.getGradeTypes();
+  }
+
+  // Groups
+  @Put('groups/:id')
+  updateGroup(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: CreateGroupDto,
+  ) {
+    return this.adminService.updateGroup(id, dto);
+  }
+
+  @Delete('groups/:id')
+  deleteGroup(@Param('id', ParseUUIDPipe) id: string) {
+    return this.adminService.deleteGroup(id);
+  }
+
+  @Put('courses/:id')
+  updateCourse(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: CreateCourseDto,
+  ) {
+    return this.adminService.updateCourse(id, dto);
+  }
+
+  @Delete('courses/:id')
+  deleteCourse(@Param('id', ParseUUIDPipe) id: string) {
+    return this.adminService.deleteCourse(id);
+  }
+
+  @Put('semesters/:id')
+  updateSemester(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: CreateSemesterDto,
+  ) {
+    return this.adminService.updateSemester(id, dto);
+  }
+
+  @Get('parent/children')
+  @Roles(UserRole.PARENT, UserRole.ADMIN)
+  @ApiOperation({ summary: 'Ota-ona farzandlari' })
+  getParentChildren(@CurrentUser() user: User) {
+    return this.adminService.getParentChildren(user.id);
   }
 }
