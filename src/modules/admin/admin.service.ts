@@ -22,6 +22,7 @@ import { AssignTeacherDto } from './dto/assign-teacher.dto';
 import { QueryAuditDto } from './dto/query-audit.dto';
 import { UserRole } from '../../database/entities/user.entity';
 import { GradeType } from '../../database/entities/grade-type.entity';
+import { ParentStudent } from '../../database/entities/parent-student.entity';
 
 @Injectable()
 export class AdminService {
@@ -49,6 +50,9 @@ export class AdminService {
 
     @InjectRepository(GradeType)
     private gradeTypeRepo: Repository<GradeType>,
+
+    @InjectRepository(ParentStudent)
+    private parentStudentRepo: Repository<ParentStudent>,
   ) {}
 
   // ─── Fakultet ─────────────────────────────────────────────────────────────
@@ -253,5 +257,40 @@ export class AdminService {
 
   async getGradeTypes() {
     return this.gradeTypeRepo.find({ order: { weightPercent: 'ASC' } });
+  }
+
+  async updateGroup(id: string, dto: CreateGroupDto) {
+    await this.groupRepo.update(id, dto);
+    return this.groupRepo.findOne({ where: { id }, relations: ['faculty'] });
+  }
+
+  async deleteGroup(id: string) {
+    await this.groupRepo.delete(id);
+    return { message: "Guruh o'chirildi" };
+  }
+
+  async updateCourse(id: string, dto: CreateCourseDto) {
+    await this.courseRepo.update(id, dto);
+    return this.courseRepo.findOne({ where: { id } });
+  }
+
+  async deleteCourse(id: string) {
+    await this.courseRepo.delete(id);
+    return { message: "Kurs o'chirildi" };
+  }
+
+  async updateSemester(id: string, dto: CreateSemesterDto) {
+    if (dto.isActive) {
+      await this.semesterRepo.update({ isActive: true }, { isActive: false });
+    }
+    await this.semesterRepo.update(id, dto);
+    return this.semesterRepo.findOne({ where: { id } });
+  }
+
+  async getParentChildren(parentUserId: string) {
+    return this.parentStudentRepo.find({
+      where: { parentUserId },
+      relations: ['student', 'student.group', 'student.group.faculty'],
+    });
   }
 }

@@ -11,6 +11,7 @@ import { User } from '../../database/entities/user.entity';
 import { TeacherCourse } from '../../database/entities/teacher-course.entity';
 import { AuditLog } from '../../database/entities/audit-log.entity';
 import { GradeType } from '../../database/entities/grade-type.entity';
+import { ParentStudent } from '../../database/entities/parent-student.entity';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { GradeType } from '../../database/entities/grade-type.entity';
       TeacherCourse,
       AuditLog,
       GradeType,
+      ParentStudent,
     ]),
   ],
   controllers: [AdminController],
