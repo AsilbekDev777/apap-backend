@@ -23,6 +23,13 @@ import { QueryAuditDto } from './dto/query-audit.dto';
 import { UserRole } from '../../database/entities/user.entity';
 import { GradeType } from '../../database/entities/grade-type.entity';
 import { ParentStudent } from '../../database/entities/parent-student.entity';
+import { Grade } from '../../database/entities/grade.entity';
+import { GpaCache } from '../../database/entities/gpa-cache.entity';
+import {
+  Attendance,
+  AttendanceStatus,
+} from '../../database/entities/attendance.entity';
+import { Student } from '../../database/entities/student.entity';
 
 @Injectable()
 export class AdminService {
@@ -53,6 +60,18 @@ export class AdminService {
 
     @InjectRepository(ParentStudent)
     private parentStudentRepo: Repository<ParentStudent>,
+
+    @InjectRepository(Grade)
+    private gradeRepo: Repository<Grade>,
+
+    @InjectRepository(GpaCache)
+    private gpaCacheRepo: Repository<GpaCache>,
+
+    @InjectRepository(Attendance)
+    private attendanceRepo: Repository<Attendance>,
+
+    @InjectRepository(Student)
+    private studentRepo: Repository<Student>,
   ) {}
 
   // ─── Fakultet ─────────────────────────────────────────────────────────────
@@ -292,5 +311,85 @@ export class AdminService {
       where: { parentUserId },
       relations: ['student', 'student.group', 'student.group.faculty'],
     });
+  }
+
+  async getGroupGrades(groupId: string, semesterId: string) {
+    const students = await this.studentRepo.find({
+      where: { groupId, isDeleted: false },
+      relations: ['user'],
+    });
+
+    return Promise.all(
+      students.map(async (student) => {
+        const grades = await this.gradeRepo.find({
+          where: { studentId: student.id, semesterId },
+          relations: ['course', 'gradeType'],
+        });
+
+        const gpaCache = await this.gpaCacheRepo.findOne({
+          where: { studentId: student.id, semesterId },
+        });
+
+        return {
+          student: {
+            id: student.id,
+            firstName: student.firstName,
+            lastName: student.lastName,
+            studentNumber: student.studentNumber,
+            email: student.user?.email ?? null,
+          },
+          grades,
+          gpa100: gpaCache ? Number(gpaCache.gpa100) : 0,
+          gpa5: gpaCache ? Number(gpaCache.gpa5) : 0,
+        };
+      }),
+    );
+  }
+
+  async getGroupAttendance(groupId: string, courseId: string) {
+    const students = await this.studentRepo.find({
+      where: { groupId, isDeleted: false },
+      relations: ['user'],
+    });
+
+    return Promise.all(
+      students.map(async (student) => {
+        const records = await this.attendanceRepo.find({
+          where: { studentId: student.id, courseId },
+          order: { lessonDate: 'DESC' },
+        });
+
+        const total = records.length;
+        const present = records.filter(
+          (r) => r.status === AttendanceStatus.PRESENT,
+        ).length;
+        const late = records.filter(
+          (r) => r.status === AttendanceStatus.LATE,
+        ).length;
+        const absent = records.filter(
+          (r) => r.status === AttendanceStatus.ABSENT,
+        ).length;
+        const percentage =
+          total > 0 ? Math.round(((present + late * 0.5) / total) * 100) : 100;
+
+        return {
+          student: {
+            id: student.id,
+            firstName: student.firstName,
+            lastName: student.lastName,
+            studentNumber: student.studentNumber,
+          },
+          stats: {
+            total,
+            present,
+            late,
+            absent,
+            percentage,
+            warning: percentage < 75,
+          },
+          records,
+        };
+      }),
+    );
   }
 }

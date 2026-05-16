@@ -184,4 +184,22 @@ export class AdminController {
   getParentChildren(@CurrentUser() user: User) {
     return this.adminService.getParentChildren(user.id);
   }
+
+  @Get('groups/:groupId/grades')
+  @ApiOperation({ summary: "Guruh bo'yicha baholar" })
+  getGroupGrades(
+    @Param('groupId', ParseUUIDPipe) groupId: string,
+    @Query('semesterId') semesterId: string,
+  ) {
+    return this.adminService.getGroupGrades(groupId, semesterId);
+  }
+
+  @Get('groups/:groupId/attendance')
+  @ApiOperation({ summary: "Guruh bo'yicha davomat" })
+  getGroupAttendance(
+    @Param('groupId', ParseUUIDPipe) groupId: string,
+    @Query('courseId') courseId: string,
+  ) {
+    return this.adminService.getGroupAttendance(groupId, courseId);
+  }
 }
