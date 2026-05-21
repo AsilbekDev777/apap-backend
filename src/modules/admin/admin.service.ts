@@ -30,6 +30,8 @@ import {
   AttendanceStatus,
 } from '../../database/entities/attendance.entity';
 import { Student } from '../../database/entities/student.entity';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class AdminService {
@@ -391,5 +393,39 @@ export class AdminService {
         };
       }),
     );
+  }
+
+  async updateUser(id: string, dto: UpdateUserDto) {
+    const user = await this.userRepo.findOne({ where: { id } });
+    if (!user) throw new NotFoundException('Foydalanuvchi topilmadi');
+
+    if (dto.email && dto.email !== user.email) {
+      const existing = await this.userRepo.findOne({
+        where: { email: dto.email },
+      });
+      if (existing) throw new ConflictException('Bu email allaqachon mavjud');
+    }
+
+    await this.userRepo.update(id, dto);
+
+    const updated = await this.userRepo.findOne({ where: { id } });
+    if (!updated) throw new NotFoundException('Foydalanuvchi topilmadi');
+    const { passwordHash: _, ...result } = updated;
+    return result;
+  }
+
+  async deleteUser(id: string) {
+    const user = await this.userRepo.findOne({ where: { id } });
+    if (!user) throw new NotFoundException('Foydalanuvchi topilmadi');
+    await this.userRepo.delete(id);
+    return { message: "Foydalanuvchi o'chirildi" };
+  }
+
+  async changePassword(id: string, dto: ChangePasswordDto) {
+    const user = await this.userRepo.findOne({ where: { id } });
+    if (!user) throw new NotFoundException('Foydalanuvchi topilmadi');
+    const hash = await bcrypt.hash(dto.newPassword, 12);
+    await this.userRepo.update(id, { passwordHash: hash });
+    return { message: 'Parol yangilandi' };
   }
 }

@@ -29,6 +29,8 @@ import { RolesGuard } from '../../shared/guards/roles.guard';
 import { Roles } from '../../shared/decorators/roles.decorator';
 import { User, UserRole } from '../../database/entities/user.entity';
 import { CurrentUser } from '../../shared/decorators/current-user.decorator';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @ApiTags('Admin')
 @ApiBearerAuth('access-token')
@@ -201,5 +203,29 @@ export class AdminController {
     @Query('courseId') courseId: string,
   ) {
     return this.adminService.getGroupAttendance(groupId, courseId);
+  }
+
+  @Put('users/:id')
+  @ApiOperation({ summary: 'Foydalanuvchini yangilash' })
+  updateUser(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateUserDto,
+  ) {
+    return this.adminService.updateUser(id, dto);
+  }
+
+  @Delete('users/:id')
+  @ApiOperation({ summary: 'Foydalanuvchini o`chirish' })
+  deleteUser(@Param('id', ParseUUIDPipe) id: string) {
+    return this.adminService.deleteUser(id);
+  }
+
+  @Put('users/:id/password')
+  @ApiOperation({ summary: 'Parolni yangilash' })
+  changePassword(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: ChangePasswordDto,
+  ) {
+    return this.adminService.changePassword(id, dto);
   }
 }
