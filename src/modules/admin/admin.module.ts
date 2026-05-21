@@ -12,6 +12,10 @@ import { TeacherCourse } from '../../database/entities/teacher-course.entity';
 import { AuditLog } from '../../database/entities/audit-log.entity';
 import { GradeType } from '../../database/entities/grade-type.entity';
 import { ParentStudent } from '../../database/entities/parent-student.entity';
+import { Grade } from '../../database/entities/grade.entity';
+import { GpaCache } from '../../database/entities/gpa-cache.entity';
+import { Attendance } from '../../database/entities/attendance.entity';
+import { Student } from '../../database/entities/student.entity';
 
 @Module({
   imports: [
@@ -25,6 +29,10 @@ import { ParentStudent } from '../../database/entities/parent-student.entity';
       AuditLog,
       GradeType,
       ParentStudent,
+      Grade,
+      GpaCache,
+      Attendance,
+      Student,
     ]),
   ],
   controllers: [AdminController],
